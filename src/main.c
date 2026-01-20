@@ -30,6 +30,10 @@ int main(void) {
 
     freeTokens(tokens); // Free previous tokens (no-op the first time)
     TokenList tokens = tokenize(input);
+    if (tokens.length == -1) {
+      fprintf(stderr, "Error: line too long.\n");
+      continue;
+    }
 
     // Uncomment to display tokens:
     // for (int i = 0; i < tokens.length; i++) {

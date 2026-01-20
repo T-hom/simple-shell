@@ -5,23 +5,21 @@
 
 const char *token_delimiters = " \t\n|><&;";
 
+#define MAX_TOKENS 128
+
 // Allocates a list of tokens from the input line. Should later be freed with freeTokens.
 TokenList tokenize(char *line) {
   TokenList list = {0};
-  int capacity = 8;
-  list.tokens = calloc(capacity, sizeof(char*));
+  list.tokens = calloc(MAX_TOKENS, sizeof(char*));
 
   char *token = strtok(line, token_delimiters);
   while (token) {
-    if (list.length + 1 == capacity) { // +1 to reserve space for NULL ending
-      // Grow the capacity of the list.
-      capacity *= 2;
-      char **newlist = calloc(capacity, sizeof(char*));
-      memcpy(newlist, list.tokens, sizeof(char *) * list.length);
-      free(list.tokens);
-      list.tokens = newlist;
+    if (list.length + 1 == MAX_TOKENS) { // +1 to reserve space for NULL ending
+        free(list.tokens);
+        list.length = -1;
+        list.tokens = NULL;
+        return list;
     }
-
 
     list.tokens[list.length++] = strdup(token);
 
