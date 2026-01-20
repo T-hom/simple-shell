@@ -24,4 +24,4 @@ $ make clean # removes compiled program
 
 ## TODO
 
-- [X] handle allocation failures
+- [ ] handle allocation failures
