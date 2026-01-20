@@ -1,10 +1,17 @@
+#include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
-const char *token_delimiters = " \t\n|><&;";
+#include "tokenize.h"
+
+void runExternalCommand(char **argv);
 
 int main(void) {
   char line_buffer[512];
+  TokenList tokens = {0};
 
   while (1) {
     printf("$ ");
@@ -15,16 +22,43 @@ int main(void) {
       break;
     }
 
-    char *token = strtok(input, token_delimiters);
+    freeTokens(tokens); // Free previous tokens (no-op the first time)
+    TokenList tokens = tokenize(input);
 
-    // Exit if first token exists and is 'exit'.
-    if (token && strcmp(token, "exit") == 0) {
+    if (tokens.length == 0) {
+      // Prompt again on empty line.
+      continue;
+    }
+
+    // Exit if first token is 'exit'.
+    if (strcmp(tokens.tokens[0], "exit") == 0) {
       break;
     }
 
-    while (token) {
-      printf("got token: [%s]\n", token);
-      token = strtok(NULL, token_delimiters);
-    }
+    runExternalCommand(tokens.tokens);
   }
 }
+
+void runExternalCommand(char **argv) {
+  int pid = fork();
+  int stat;
+  
+  switch (pid) {
+    case -1:
+      fprintf(stderr, "Failed to fork to run '%s': %s\n", argv[0], strerror(errno));
+      break;
+
+    case 0:
+      execvp(argv[0], argv);
+      // execv only returns on an error.
+      fprintf(stderr, "Failed to exec '%s': %s\n", argv[0], strerror(errno));
+      exit(1);
+
+    default:
+      while (!wait(&stat)) {
+        // wait returns -1 if interrupted, so keep calling until it succeeds.
+      }
+      break;
+  }
+}
+

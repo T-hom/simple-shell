@@ -13,7 +13,7 @@ $ make clean # removes compiled program
 ## Stage Progress
 
 - [X] Stage 1
-- [ ] Stage 2
+- [X] Stage 2
 - [ ] Stage 3
 - [ ] Stage 4
 - [ ] Stage 5
@@ -21,3 +21,7 @@ $ make clean # removes compiled program
 - [ ] Stage 7
 - [ ] Stage 8
 - [ ] Stage 9
+
+## TODO
+
+- [X] handle allocation failures

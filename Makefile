@@ -1,8 +1,8 @@
 CC=gcc
 FLAGS=-Wall -Wextra -pedantic
 
-build: src/main.c out/
-	$(CC) $(FLAGS) -o out/simple-shell src/main.c
+build: src/* out/
+	$(CC) $(FLAGS) -o out/simple-shell src/*
 
 out/:
 	mkdir out/
