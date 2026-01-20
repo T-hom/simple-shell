@@ -13,6 +13,12 @@ int main(void) {
   char line_buffer[512];
   TokenList tokens = {0};
 
+  char *original_path = getenv("PATH");
+  char *home_path = getenv("HOME");
+  if (chdir(home_path) < 0) {
+    fprintf(stderr, "Failed to change to home directory: %s\n", strerror(errno));
+  }
+
   while (1) {
     printf("$ ");
     char *input = fgets(line_buffer, sizeof(line_buffer), stdin);
@@ -40,8 +46,31 @@ int main(void) {
       break;
     }
 
+    if (strcmp(tokens.tokens[0], "getpath") == 0) {
+      if (tokens.length != 1) {
+        fprintf(stderr, "Error: getpath doesn't take arguments, just type 'getpath'.\n");
+      } else {
+        printf("%s\n", getenv("PATH"));
+      }
+
+      continue;
+    }
+
+    if (strcmp(tokens.tokens[0], "setpath") == 0) {
+      if (tokens.length != 2) {
+        fprintf(stderr, "Error: setpath expects one argument: 'setpath <PATH>'.\n");
+      }  else {
+        setenv("PATH", tokens.tokens[1], 1);
+      }
+
+      continue;
+    }
+
     runExternalCommand(tokens.tokens);
   }
+
+  fprintf(stderr, "\nResetting path to original: %s\n", original_path);
+  setenv("PATH", original_path, 1);
 }
 
 void runExternalCommand(char **argv) {
