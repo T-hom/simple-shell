@@ -7,7 +7,7 @@ const char *token_delimiters = " \t\n|><&;";
 
 // Allocates a list of tokens from the input line. Should later be freed with freeTokens.
 TokenList tokenize(char *line) {
-  TokenList list;
+  TokenList list = {0};
   int capacity = 8;
   list.tokens = calloc(capacity, sizeof(char*));
 
@@ -17,7 +17,7 @@ TokenList tokenize(char *line) {
       // Grow the capacity of the list.
       capacity *= 2;
       char **newlist = calloc(capacity, sizeof(char*));
-      memcpy(newlist, list.tokens, sizeof(char *) * (list.length - 1));
+      memcpy(newlist, list.tokens, sizeof(char *) * list.length);
       free(list.tokens);
       list.tokens = newlist;
     }
