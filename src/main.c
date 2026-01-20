@@ -46,6 +46,27 @@ int main(void) {
       break;
     }
 
+    if (strcmp(tokens.tokens[0], "cd") == 0) {
+      char *path;
+      switch (tokens.length) {
+        case 1:
+          path = getenv("HOME");
+          break;
+        case 2:
+          path = tokens.tokens[1];
+          break;
+        default:
+          fprintf(stderr, "Error: cd expects 0 or 1 arguments: 'cd [path]'.\n");
+          continue;
+      }
+
+      if (chdir(path) < 0) {
+        fprintf(stderr, "Failed to chdir to '%s': %s\n", path, strerror(errno));
+      }
+
+      continue;
+    }
+
     if (strcmp(tokens.tokens[0], "getpath") == 0) {
       if (tokens.length != 1) {
         fprintf(stderr, "Error: getpath doesn't take arguments, just type 'getpath'.\n");
