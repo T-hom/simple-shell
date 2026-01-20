@@ -1,13 +1,11 @@
 CC=gcc
 FLAGS=-Wall -Wextra -pedantic
 
-build: src/* out/
+out/simple-shell: src/*
+	mkdir -p out/
 	$(CC) $(FLAGS) -o out/simple-shell src/*
 
-out/:
-	mkdir out/
-
-run: build
+run: out/simple-shell
 	./out/simple-shell
 
 clean:
