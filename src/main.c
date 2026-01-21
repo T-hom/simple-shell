@@ -6,12 +6,13 @@
 #include <unistd.h>
 
 #include "tokenize.h"
+#include "history.h"
 
 void runExternalCommand(char **argv);
 
 int main(void) {
   char line_buffer[512];
-  TokenList tokens = {0};
+  History history = {0};
 
   char *original_path = getenv("PATH");
   char *home_path = getenv("HOME");
@@ -28,7 +29,6 @@ int main(void) {
       break;
     }
 
-    freeTokens(tokens); // Free previous tokens (no-op the first time)
     TokenList tokens = tokenize(input);
     if (tokens.length == -1) {
       fprintf(stderr, "Error: line too long.\n");
@@ -45,9 +45,23 @@ int main(void) {
       continue;
     }
 
-    // Exit if first token is 'exit'.
+    appendHistory(&history, tokens);
+
     if (strcmp(tokens.tokens[0], "exit") == 0) {
       break;
+    }
+
+    if (strcmp(tokens.tokens[0], "history") == 0) {
+      for (int i = 0; i < history.length; i++) {
+        printf("%d: ", i+1);
+        TokenList line = getHistory(&history, i);
+        printf("%s", line.tokens[0]); // Empty lines aren't stored in history.
+        for (int i = 1; i < line.length; i++) {
+          printf(" %s", line.tokens[i]);
+        }
+        printf("\n");
+      }
+      continue;
     }
 
     if (strcmp(tokens.tokens[0], "cd") == 0) {
@@ -93,6 +107,8 @@ int main(void) {
 
     runExternalCommand(tokens.tokens);
   }
+
+  freeHistory(history);
 
   fprintf(stderr, "\nResetting path to original: %s\n", original_path);
   setenv("PATH", original_path, 1);
