@@ -8,6 +8,8 @@
 #include "history.h"
 #include "tokenize.h"
 
+int invokeHistory(TokenList *, History *);
+int substituteHistory(TokenList *, History *, long);
 void listHistory(TokenList, History *);
 void cd(TokenList);
 void getpath(TokenList);
@@ -50,9 +52,17 @@ int main(void) {
       continue;
     }
 
-    appendHistory(&history, tokens);
-
     char *command = tokens.tokens[0];
+
+    if (command[0] == '!') { // History invocation.
+      if (invokeHistory(&tokens, &history) < 0) {
+        continue;
+      }
+      command = tokens.tokens[0]; // Previous command may have been freed and replaced.
+    } else {
+      appendHistory(&history, tokens);
+    }
+
 
     if (strcmp(command, "exit") == 0) {
       break;
@@ -75,6 +85,58 @@ int main(void) {
 
   fprintf(stderr, "\nResetting path to original: %s\n", original_path);
   setenv("PATH", original_path, 1);
+}
+
+int invokeHistory(TokenList *tokens, History *history) {
+  if (tokens->length != 1) {
+    fprintf(stderr, "Error: history invocation expects no arguments.\n");
+    return -1;
+  }
+
+  char *command = tokens->tokens[0];
+
+  if (strcmp(command, "!!") == 0) {
+    return substituteHistory(tokens, history, -1);
+  }
+
+  if (command[1] == '\0') {
+    fprintf(stderr, "Unrecognized command: '!'.\n");
+    return -1;
+  }
+
+  char *number_end;
+  long offset = strtol(&command[1], &number_end, 10);
+
+  if (*number_end != '\0') {
+    // The remainder of the command was not a valid number.
+    fprintf(stderr, "Unrecognized command: '%s'\n", command);
+    return -1;
+  }
+
+  return substituteHistory(tokens, history, offset);
+}
+
+int substituteHistory(TokenList *tokens, History *history, long offset) {
+  long index;
+  if (offset > 0) {
+    index = offset - 1;
+  } else if (offset < 0) {
+    index = history->length + offset;
+  } else {
+    fprintf(stderr, "Error: history offset must be positive or negative.\n");
+    return -1;
+  }
+
+  if (index < 0 || index >= history->length) {
+    fprintf(stderr, "Error: entry %ld does not exist in history.\n",
+            offset);
+    return -1;
+  }
+  
+  freeTokens(*tokens);
+  *tokens = getHistory(history, index);
+
+  return 0;
 }
 
 void listHistory(TokenList tokens, History *history) {

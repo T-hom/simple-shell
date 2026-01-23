@@ -16,7 +16,7 @@ $ make clean # removes compiled program
 - [X] Stage 2
 - [X] Stage 3
 - [X] Stage 4
-- [ ] Stage 5
+- [X] Stage 5
 - [ ] Stage 6
 - [ ] Stage 7
 - [ ] Stage 8
