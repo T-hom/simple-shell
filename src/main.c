@@ -193,8 +193,7 @@ void setpath(TokenList tokens) {
 }
 
 void runExternalCommand(char **argv) {
-  int pid = fork();
-  int stat;
+  pid_t pid = fork();
 
   switch (pid) {
   case -1:
@@ -209,7 +208,7 @@ void runExternalCommand(char **argv) {
     exit(1);
 
   default:
-    while (!wait(&stat)) {
+    while (wait(NULL) == -1) {
       // wait returns -1 if interrupted, so keep calling until it succeeds.
     }
     break;
