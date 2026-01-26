@@ -16,9 +16,7 @@ TokenList tokenize(char *line) {
   while (token) {
     if (list.length + 1 == MAX_TOKENS) { // +1 to reserve space for NULL ending
         free(list.tokens);
-        list.length = -1;
-        list.tokens = NULL;
-        return list;
+        return (TokenList) {NULL, -1};
     }
 
     list.tokens[list.length++] = strdup(token);
