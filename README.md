@@ -5,7 +5,7 @@ A simple shell written in C for CS210.
 ## Building and Running
 
 ```shell
-$ make build # outputs binary to out/simple-shell
+$ make # outputs binary to out/simple-shell
 $ make run # builds and runs the shell
 $ make clean # removes compiled program
 ```
