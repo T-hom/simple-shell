@@ -80,7 +80,6 @@ int main(void) {
         strcat(full_command, tokens.tokens[i]);
       }
 
-      freeTokens(tokens); // free old token memory as we are replacing it with the command for the alias
       tokens = tokenize(full_command); // tokenise new command string
       command = tokens.tokens[0]; // update command to the new command after substituting the alias
     }
