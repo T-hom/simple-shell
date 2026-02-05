@@ -7,6 +7,7 @@
 
 #include "history.h"
 #include "tokenize.h"
+#include "alias.h"
 
 int invokeHistory(TokenList *, History *);
 int substituteHistory(TokenList *, History *, long);
@@ -15,10 +16,15 @@ void cd(TokenList);
 void getpath(TokenList);
 void setpath(TokenList);
 void runExternalCommand(char **argv);
+void alias(TokenList tokens, AliasList *alias_list);
+void unalias(TokenList tokens, AliasList *alias_list);
 
 int main(void) {
   char line_buffer[512];
   History history = {0};
+  AliasList alias_list;
+
+  init_aliases(&alias_list);
 
   char *original_path = getenv("PATH");
   char *home_path = getenv("HOME");
@@ -76,6 +82,10 @@ int main(void) {
       getpath(tokens);
     } else if (strcmp(command, "setpath") == 0) {
       setpath(tokens);
+    } else if (strcmp(command, "alias") == 0) {
+      alias(tokens, &alias_list);
+    } else if (strcmp(command, "unalias") == 0) {
+      unalias(tokens, &alias_list);
     } else {
       runExternalCommand(tokens.tokens);
     }
@@ -213,4 +223,36 @@ void runExternalCommand(char **argv) {
     }
     break;
   }
+}
+
+void alias(TokenList tokens, AliasList *alias_list) {
+  if (tokens.length == 1) { // if nothing comes after alias command, print all aliases
+    print_aliases(alias_list);
+    return;
+  }
+
+  if (tokens.length == 2) { // check if there is a command
+    fprintf(stderr, "Error: alias expects a command: 'alias <name> <command>'\n");
+    return;
+  }
+
+  
+  char *alias_name = tokens.tokens[1]; // get alias name
+
+  // build the command from the rest of the tokens
+  char alias_command[512] = "";
+  for (int i = 2; i < tokens.length; i++) {
+    if (i > 2) strcat(alias_command, " "); // add space between words
+    strcat(alias_command, tokens.tokens[i]);
+  }
+
+  add_alias(alias_list, alias_name, alias_command);
+}
+
+void unalias(TokenList tokens, AliasList *alias_list) {
+  if (tokens.length != 2) {
+    fprintf(stderr, "Error! unalias only expects one argument: 'unalias <name>'\n");
+    return;
+  }
+  remove_alias(alias_list, tokens.tokens[1]);
 }
