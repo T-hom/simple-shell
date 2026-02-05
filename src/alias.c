@@ -67,3 +67,12 @@ void print_aliases(AliasList *alias_list) {
         printf("%s = %s\n", alias_list->alias[i][0], alias_list->alias[i][1]);
     }
 }
+
+char *findAlias_command(AliasList *alias_list, char *name) {
+    for (int i = 0; i < alias_list->count; i++) { 
+        if (strcmp(alias_list->alias[i][0], name) == 0) { // compare alias name to name passed in
+            return alias_list->alias[i][1]; // if it matches return command next for that alias
+        }
+    }
+    return NULL;
+}

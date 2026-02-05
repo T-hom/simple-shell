@@ -19,6 +19,7 @@ void runExternalCommand(char **argv);
 void alias(TokenList tokens, AliasList *alias_list);
 void unalias(TokenList tokens, AliasList *alias_list);
 
+
 int main(void) {
   char line_buffer[512];
   History history = {0};
@@ -69,6 +70,20 @@ int main(void) {
       appendHistory(&history, tokens);
     }
 
+    // check if the command is an alias before
+    char *alias_command = findAlias_command(&alias_list, command);
+    if (alias_command != NULL) { // if it doesn't return null we've found the command for this alias 
+      char full_command[512]; // string to build the command 
+      strcpy(full_command, alias_command);
+      for (int i = 1; i < tokens.length; i++) { // add the rest of the tokens to the string after the alias command
+        strcat(full_command, " ");
+        strcat(full_command, tokens.tokens[i]);
+      }
+
+      freeTokens(tokens); // free old token memory as we are replacing it with the command for the alias
+      tokens = tokenize(full_command); // tokenise new command string
+      command = tokens.tokens[0]; // update command to the new command after substituting the alias
+    }
 
     if (strcmp(command, "exit") == 0) {
       break;

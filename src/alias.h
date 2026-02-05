@@ -8,5 +8,5 @@ typedef struct {
 void add_alias(AliasList *alias_list, char *name, char *command);
 void remove_alias(AliasList *alias_list, char *name);
 void init_aliases(AliasList *alias_list); //  neede because otherwise it has random data
-
 void print_aliases(AliasList *alias_list);
+char *findAlias_command(AliasList *alias_list, char *name); // returns command for alias or null if not found
